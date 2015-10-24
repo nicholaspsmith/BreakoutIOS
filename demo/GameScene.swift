@@ -32,6 +32,15 @@ class GameScene: SKScene {
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
        /* Called when a touch begins */
+        var touch = touches.first as UITouch!
+        var location = touch.locationInNode(self)
+        
+        if let body = self.physicsWorld.bodyAtPoint(location) {
+            if body.node!.name == "Paddle" {
+                print("touch")
+            }
+        }
+        
     }
    
     override func update(currentTime: CFTimeInterval) {
