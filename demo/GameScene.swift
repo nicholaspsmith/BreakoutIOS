@@ -90,10 +90,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             contact.bodyB.node!.removeFromParent()
             
             if --blockCount == 0 {
-                print("Game Won")
+                if let mainScene = view {
+                    if let scene =  GameOverScene(fileNamed:"GameOverScene") {
+                        scene.didWin = true
+                        mainScene.presentScene(scene)
+                    }
+                }
             }
         } else if first.categoryBitMask == BallCategory && second.categoryBitMask == BottomCategory {
-            print("You lose")
+
+                if let scene =  GameOverScene(fileNamed:"GameOverScene") {
+                    scene.didWin = false
+                    view!.presentScene(scene)
+                }
+            
         }
     }
     
