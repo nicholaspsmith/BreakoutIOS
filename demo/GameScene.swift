@@ -40,8 +40,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody!.categoryBitMask = BallCategory
         ball.physicsBody!.contactTestBitMask = BlockCategory
         
-        let block = childNodeWithName("Block") as! SKSpriteNode
-        block.physicsBody!.categoryBitMask = BlockCategory
+        let numBlocks: CGFloat = 8
+        for i in Range(0..<Int(numBlocks)) {
+            let block = SKSpriteNode(color: UIColor.redColor(), size: CGSizeMake(CGRectGetWidth(frame) / numBlocks - 40, 40))
+            block.position = CGPointMake(20 + block.size.width / 2 + CGFloat(i) * (block.size.width + 40), CGRectGetHeight(frame) * 0.75)
+            block.physicsBody = SKPhysicsBody(rectangleOfSize: block.frame.size)
+            block.physicsBody!.dynamic = false
+            block.physicsBody!.allowsRotation = true
+            block.physicsBody!.friction = 0
+            block.physicsBody!.restitution = 1
+            block.physicsBody!.linearDamping = 0
+            block.physicsBody!.angularDamping = 0
+            
+            block.physicsBody!.categoryBitMask = BlockCategory
+            
+            addChild(block)
+        }
     }
     
     func didBeginContact(contact: SKPhysicsContact) {
