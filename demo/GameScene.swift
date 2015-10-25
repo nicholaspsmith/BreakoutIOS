@@ -11,9 +11,11 @@ import SpriteKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var isTouchingPaddle = false
+    var currentScore = 0
     
     let BallCategory: UInt32 = 0x1 << 0 //   00000000 00000000 00000000 00000001
-    let PaddleCategory: UInt32 = 0x1 << 1 // 000000000 00000000 0000000 00000010
+    let PaddleCategory: UInt32 = 0x1 << 1 // 00000000 00000000 00000000 00000010
+    let BlockCategory: UInt32 = 0x1 << 2 //  00000000 00000000 00000000 00000100
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -36,30 +38,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody!.angularDamping = 0
         
         ball.physicsBody!.categoryBitMask = BallCategory
+        ball.physicsBody!.contactTestBitMask = BlockCategory
         
-        let paddle = childNodeWithName("Paddle") as! SKSpriteNode
-        paddle.physicsBody!.categoryBitMask = PaddleCategory
-        
-        ball.physicsBody!.contactTestBitMask = PaddleCategory
+        let block = childNodeWithName("Block") as! SKSpriteNode
+        block.physicsBody!.categoryBitMask = BlockCategory
     }
     
     func didBeginContact(contact: SKPhysicsContact) {
-        if contact.bodyA.categoryBitMask == BallCategory && contact.bodyB.categoryBitMask == PaddleCategory {
-            print("The ball hit the paddle")
+        if contact.bodyA.categoryBitMask == BallCategory && contact.bodyB.categoryBitMask == BlockCategory {
+            print("nice!")
+            // Increment score
+            let scoreLabel = childNodeWithName("Score") as! SKLabelNode
+            currentScore += 100
+            scoreLabel.text = "Score: " + String(currentScore)
+            // Remove block
+            contact.bodyB.node!.removeFromParent()
         }
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
        /* Called when a touch begins */
-        let touch = touches.first as UITouch!;
-        let location = touch.locationInNode(self);
-        _ = touch.previousLocationInNode(self);
-        
-        if let body = self.physicsWorld.bodyAtPoint(location) {
-            if body.node!.name == "Paddle" {
-                isTouchingPaddle = true
-            }
-        }
+        isTouchingPaddle = true
     }
     
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
