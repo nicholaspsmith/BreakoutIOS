@@ -10,19 +10,29 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    var blockCount = 0
     var isTouchingPaddle = false
     var currentScore = 0
     
     let BallCategory: UInt32 = 0x1 << 0 //   00000000 00000000 00000000 00000001
     let PaddleCategory: UInt32 = 0x1 << 1 // 00000000 00000000 00000000 00000010
     let BlockCategory: UInt32 = 0x1 << 2 //  00000000 00000000 00000000 00000100
+    let BottomCategory: UInt32 = 0x1 << 3 // 00000000 00000000 00000000 00001000
     
     override func didMoveToView(view: SKView) {
+
         /* Setup your scene here */
         let border = SKPhysicsBody(edgeLoopFromRect: self.frame)
         border.friction = 0
         
         self.physicsBody = border
+        
+        let rect = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, 1)
+        let bottom = SKNode()
+        bottom.physicsBody = SKPhysicsBody(edgeLoopFromRect: rect)
+        bottom.physicsBody!.categoryBitMask = BottomCategory
+        addChild(bottom)
+        
         
         // Set gravity to 0
         self.physicsWorld.gravity = CGVectorMake(0,0)
@@ -38,9 +48,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody!.angularDamping = 0
         
         ball.physicsBody!.categoryBitMask = BallCategory
-        ball.physicsBody!.contactTestBitMask = BlockCategory
+        ball.physicsBody!.contactTestBitMask = BlockCategory | BottomCategory
         
-        let numBlocks: CGFloat = 8
+        let numBlocks: CGFloat = 6
         for i in Range(0..<Int(numBlocks)) {
             let block = SKSpriteNode(color: UIColor.redColor(), size: CGSizeMake(CGRectGetWidth(frame) / numBlocks - 40, 40))
             block.position = CGPointMake(20 + block.size.width / 2 + CGFloat(i) * (block.size.width + 40), CGRectGetHeight(frame) * 0.75)
@@ -55,18 +65,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             block.physicsBody!.categoryBitMask = BlockCategory
             
             addChild(block)
+            blockCount++
         }
     }
     
     func didBeginContact(contact: SKPhysicsContact) {
-        if contact.bodyA.categoryBitMask == BallCategory && contact.bodyB.categoryBitMask == BlockCategory {
-            print("nice!")
+        var first: SKPhysicsBody
+        var second: SKPhysicsBody
+        
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            first = contact.bodyA
+            second = contact.bodyB
+        } else {
+            first = contact.bodyB
+            second = contact.bodyA
+        }
+        
+        if first.categoryBitMask == BallCategory && second.categoryBitMask == BlockCategory {
             // Increment score
             let scoreLabel = childNodeWithName("Score") as! SKLabelNode
             currentScore += 100
             scoreLabel.text = "Score: " + String(currentScore)
             // Remove block
             contact.bodyB.node!.removeFromParent()
+            
+            if --blockCount == 0 {
+                print("Game Won")
+            }
+        } else if first.categoryBitMask == BallCategory && second.categoryBitMask == BottomCategory {
+            print("You lose")
         }
     }
     
