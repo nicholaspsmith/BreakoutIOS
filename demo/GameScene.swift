@@ -8,9 +8,12 @@
 
 import SpriteKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var isTouchingPaddle = false
+    
+    let BallCategory: UInt32 = 0x1 << 0 //   00000000 00000000 00000000 00000001
+    let PaddleCategory: UInt32 = 0x1 << 1 // 000000000 00000000 0000000 00000010
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -21,6 +24,7 @@ class GameScene: SKScene {
         
         // Set gravity to 0
         self.physicsWorld.gravity = CGVectorMake(0,0)
+        self.physicsWorld.contactDelegate = self
         
         let ball = childNodeWithName("Ball") as! SKSpriteNode
         
@@ -31,6 +35,18 @@ class GameScene: SKScene {
         ball.physicsBody!.linearDamping = 0
         ball.physicsBody!.angularDamping = 0
         
+        ball.physicsBody!.categoryBitMask = BallCategory
+        
+        let paddle = childNodeWithName("Paddle") as! SKSpriteNode
+        paddle.physicsBody!.categoryBitMask = PaddleCategory
+        
+        ball.physicsBody!.contactTestBitMask = PaddleCategory
+    }
+    
+    func didBeginContact(contact: SKPhysicsContact) {
+        if contact.bodyA.categoryBitMask == BallCategory && contact.bodyB.categoryBitMask == PaddleCategory {
+            print("The ball hit the paddle")
+        }
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
