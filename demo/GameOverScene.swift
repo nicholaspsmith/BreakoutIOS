@@ -16,5 +16,13 @@ class GameOverScene: SKScene {
             label.text = didWin ? "You win" : "You lose"
         }
     }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        if let mainScene = view {
+            if let scene =  GameScene(fileNamed:"GameScene") {
+                mainScene.presentScene(scene)
+            }
+        }
+    }
 
 }

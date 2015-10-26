@@ -98,12 +98,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         } else if first.categoryBitMask == BallCategory && second.categoryBitMask == BottomCategory {
-
+            if let mainScene = view {
                 if let scene =  GameOverScene(fileNamed:"GameOverScene") {
                     scene.didWin = false
-                    view!.presentScene(scene)
+                    mainScene.presentScene(scene)
                 }
-            
+            }
         }
     }
     
